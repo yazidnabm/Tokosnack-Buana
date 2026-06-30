@@ -1,0 +1,28 @@
+{
+  "menu": [
+    {
+      "url": "/dashboard",
+      "name": "Dashboard",
+      "icon": "menu-icon icon-base bx bx-home",
+      "slug": "dashboard"
+    },
+    {
+      "url": "/kas-masuk",
+      "name": "Kas Masuk",
+      "icon": "menu-icon icon-base bx bx-down-arrow-circle",
+      "slug": "kas-masuk"
+    },
+    {
+      "url": "/kas-keluar",
+      "name": "Kas Keluar",
+      "icon": "menu-icon icon-base bx bx-up-arrow-circle",
+      "slug": "kas-keluar"
+    },
+    {
+      "url": "/laporan",
+      "name": "Laporan",
+      "icon": "menu-icon icon-base bx bx-file",
+      "slug": "laporan"
+    }
+  ]
+}
