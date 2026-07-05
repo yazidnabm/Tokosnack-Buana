@@ -23,11 +23,11 @@ class KasKeluarController extends Controller
 
         // Hitung Statistik Keseluruhan
         $totalPengeluaranAll = $queryStats->sum('jumlah');
-        
+
         // Total transaksi sesuai filter tanggal
         $totalTransaksi = $queryStats->count();
 
-        // Cari Tujuan Pengeluaran Terbanyak (Alokasi Dana Terbesar)
+        // Cari Tujuan Pengeluaran Terbanyak
         $tujuanTerbanyak = DB::table('kas_keluar')
             ->select('tujuan', DB::raw('COUNT(*) as total_transaksi'))
             ->groupBy('tujuan')
@@ -35,11 +35,19 @@ class KasKeluarController extends Controller
             ->first();
 
         // 3. Query untuk Tabel (Dengan Paginate)
-        $queryTable = DB::table('kas_keluar')->orderBy('tanggal', 'desc');
+        $queryTable = DB::table('kas_keluar')
+            ->orderBy('tanggal', 'desc');
 
         if ($startDate && $endDate) {
             $queryTable->whereBetween('tanggal', [$startDate, $endDate]);
         }
+
+
+        $tujuanList = DB::table('kas_keluar')
+        ->select('tujuan')
+        ->distinct()
+        ->orderBy('tujuan')
+        ->pluck('tujuan');
 
         $data = $queryTable->paginate($perPage);
 
@@ -48,6 +56,7 @@ class KasKeluarController extends Controller
             'totalPengeluaranAll',
             'totalTransaksi',
             'tujuanTerbanyak',
+            'tujuanList',
             'startDate',
             'endDate'
         ));
@@ -59,16 +68,15 @@ class KasKeluarController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tanggal'  => 'required|date',
-            'jumlah'   => 'required|numeric|min:1',
-            'quantity' => 'required|integer|min:1',
-            'tujuan'   => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'jumlah'  => 'required|numeric|min:1',
+            'tujuan'  => 'required|string|max:255',
         ]);
 
         DB::table('kas_keluar')->insert([
             'tanggal'    => $request->tanggal,
             'jumlah'     => $request->jumlah,
-            'quantity'   => $request->quantity,
+            'quantity'   => 1,
             'tujuan'     => $request->tujuan,
             'created_at' => now(),
             'updated_at' => now(),
@@ -84,10 +92,9 @@ class KasKeluarController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'tanggal'  => 'required|date',
-            'jumlah'   => 'required|numeric|min:1',
-            'quantity' => 'required|integer|min:1',
-            'tujuan'   => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'jumlah'  => 'required|numeric|min:1',
+            'tujuan'  => 'required|string|max:255',
         ]);
 
         DB::table('kas_keluar')
@@ -95,7 +102,7 @@ class KasKeluarController extends Controller
             ->update([
                 'tanggal'    => $request->tanggal,
                 'jumlah'     => $request->jumlah,
-                'quantity'   => $request->quantity,
+                'quantity'   => 1,
                 'tujuan'     => $request->tujuan,
                 'updated_at' => now(),
             ]);

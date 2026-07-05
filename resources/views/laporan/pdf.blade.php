@@ -2,13 +2,14 @@
 <html>
 <head>
     <title>Laporan Arus Kas</title>
+
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
         }
 
-        h2,h3,h4 {
+        h2, h3 {
             margin-bottom: 8px;
         }
 
@@ -18,7 +19,8 @@
             margin-bottom: 20px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #000;
             padding: 6px;
         }
@@ -36,12 +38,13 @@
         }
     </style>
 </head>
+
 <body>
 
     <h2>Laporan Arus Kas</h2>
 
     <p>
-        Periode :
+        <strong>Periode :</strong>
         {{ $tanggalMulai }}
         s/d
         {{ $tanggalSelesai }}
@@ -73,14 +76,14 @@
     <table>
         <thead>
             <tr>
-                <th>Sumber</th>
+                <th>Sumber Pemasukan</th>
                 <th>Total Qty</th>
                 <th>Total Pemasukan</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach($kasMasuk as $item)
+            @forelse($kasMasuk as $item)
                 <tr>
                     <td>{{ $item->sumber }}</td>
 
@@ -92,7 +95,13 @@
                         Rp {{ number_format($item->total_jumlah, 0, ',', '.') }}
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="3" class="text-center">
+                        Tidak ada data kas masuk.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -101,26 +110,27 @@
     <table>
         <thead>
             <tr>
-                <th>Tujuan</th>
-                <th>Total Qty</th>
+                <th>Tujuan Pengeluaran</th>
                 <th>Total Pengeluaran</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach($kasKeluar as $item)
+            @forelse($kasKeluar as $item)
                 <tr>
                     <td>{{ $item->tujuan }}</td>
-
-                    <td class="text-center">
-                        {{ $item->total_qty }}
-                    </td>
 
                     <td class="text-right">
                         Rp {{ number_format($item->total_jumlah, 0, ',', '.') }}
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="2" class="text-center">
+                        Tidak ada data kas keluar.
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 

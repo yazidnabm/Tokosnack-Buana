@@ -30,7 +30,9 @@ class LaporanController extends Controller
                 ->format('Y-m-d');
         }
 
+        // ======================
         // KAS MASUK
+        // ======================
         $kasMasuk = DB::table('kas_masuk')
             ->when($tanggalMulai, fn($q) =>
                 $q->whereDate('tanggal', '>=', $tanggalMulai)
@@ -41,7 +43,9 @@ class LaporanController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
 
+        // ======================
         // KAS KELUAR
+        // ======================
         $kasKeluar = DB::table('kas_keluar')
             ->when($tanggalMulai, fn($q) =>
                 $q->whereDate('tanggal', '>=', $tanggalMulai)
@@ -52,13 +56,15 @@ class LaporanController extends Controller
             ->orderBy('tanggal', 'asc')
             ->get();
 
-        // PERHITUNGAN
+        // ======================
+        // RINGKASAN
+        // ======================
         $totalMasuk = $kasMasuk->sum('jumlah');
         $totalKeluar = $kasKeluar->sum('jumlah');
         $saldo = $totalMasuk - $totalKeluar;
 
+        // Quantity hanya untuk Kas Masuk
         $totalQtyMasuk = $kasMasuk->sum('quantity');
-        $totalQtyKeluar = $kasKeluar->sum('quantity');
 
         return view('laporan.index', compact(
             'kasMasuk',
@@ -67,7 +73,6 @@ class LaporanController extends Controller
             'totalKeluar',
             'saldo',
             'totalQtyMasuk',
-            'totalQtyKeluar',
             'tanggalMulai',
             'tanggalSelesai'
         ));
@@ -79,68 +84,75 @@ class LaporanController extends Controller
      * ======================
      */
     public function exportPdf(Request $request)
-{
-    $tanggalMulai = $request->tanggal_mulai;
-    $tanggalSelesai = $request->tanggal_selesai;
+    {
+        $tanggalMulai = $request->tanggal_mulai;
+        $tanggalSelesai = $request->tanggal_selesai;
 
-    if (!$tanggalMulai && !$tanggalSelesai) {
+        // Default tampilkan bulan berjalan
+        if (!$tanggalMulai && !$tanggalSelesai) {
 
-        $tanggalMulai = now()
-            ->startOfMonth()
-            ->format('Y-m-d');
+            $tanggalMulai = now()
+                ->startOfMonth()
+                ->format('Y-m-d');
 
-        $tanggalSelesai = now()
-            ->endOfMonth()
-            ->format('Y-m-d');
-    }
+            $tanggalSelesai = now()
+                ->endOfMonth()
+                ->format('Y-m-d');
+        }
 
-    // REKAP KAS MASUK
-    $kasMasuk = DB::table('kas_masuk')
-        ->select(
-            'sumber',
-            DB::raw('SUM(quantity) as total_qty'),
-            DB::raw('SUM(jumlah) as total_jumlah')
-        )
-        ->when($tanggalMulai, fn($q) =>
-            $q->whereDate('tanggal', '>=', $tanggalMulai)
-        )
-        ->when($tanggalSelesai, fn($q) =>
-            $q->whereDate('tanggal', '<=', $tanggalSelesai)
-        )
-        ->groupBy('sumber')
-        ->orderBy('sumber')
-        ->get();
+        // ======================
+        // REKAP KAS MASUK
+        // ======================
+        $kasMasuk = DB::table('kas_masuk')
+            ->select(
+                'sumber',
+                DB::raw('SUM(quantity) as total_qty'),
+                DB::raw('SUM(jumlah) as total_jumlah')
+            )
+            ->when($tanggalMulai, fn($q) =>
+                $q->whereDate('tanggal', '>=', $tanggalMulai)
+            )
+            ->when($tanggalSelesai, fn($q) =>
+                $q->whereDate('tanggal', '<=', $tanggalSelesai)
+            )
+            ->groupBy('sumber')
+            ->orderBy('sumber')
+            ->get();
 
-    // REKAP KAS KELUAR
-    $kasKeluar = DB::table('kas_keluar')
-        ->select(
-            'tujuan',
-            DB::raw('SUM(quantity) as total_qty'),
-            DB::raw('SUM(jumlah) as total_jumlah')
-        )
-        ->when($tanggalMulai, fn($q) =>
-            $q->whereDate('tanggal', '>=', $tanggalMulai)
-        )
-        ->when($tanggalSelesai, fn($q) =>
-            $q->whereDate('tanggal', '<=', $tanggalSelesai)
-        )
-        ->groupBy('tujuan')
-        ->orderBy('tujuan')
-        ->get();
+        // ======================
+        // REKAP KAS KELUAR
+        // ======================
+        $kasKeluar = DB::table('kas_keluar')
+            ->select(
+                'tujuan',
+                DB::raw('SUM(jumlah) as total_jumlah')
+            )
+            ->when($tanggalMulai, fn($q) =>
+                $q->whereDate('tanggal', '>=', $tanggalMulai)
+            )
+            ->when($tanggalSelesai, fn($q) =>
+                $q->whereDate('tanggal', '<=', $tanggalSelesai)
+            )
+            ->groupBy('tujuan')
+            ->orderBy('tujuan')
+            ->get();
 
-    $totalMasuk = $kasMasuk->sum('total_jumlah');
-    $totalKeluar = $kasKeluar->sum('total_jumlah');
-    $saldo = $totalMasuk - $totalKeluar;
+        // ======================
+        // RINGKASAN
+        // ======================
+        $totalMasuk = $kasMasuk->sum('total_jumlah');
+        $totalKeluar = $kasKeluar->sum('total_jumlah');
+        $saldo = $totalMasuk - $totalKeluar;
 
-    $pdf = Pdf::loadView('laporan.pdf', compact(
-        'kasMasuk',
-        'kasKeluar',
-        'totalMasuk',
-        'totalKeluar',
-        'saldo',
-        'tanggalMulai',
-        'tanggalSelesai'
-     ))->setPaper('A4', 'portrait');
+        $pdf = Pdf::loadView('laporan.pdf', compact(
+            'kasMasuk',
+            'kasKeluar',
+            'totalMasuk',
+            'totalKeluar',
+            'saldo',
+            'tanggalMulai',
+            'tanggalSelesai'
+        ))->setPaper('A4', 'portrait');
 
         return $pdf->download('laporan-arus-kas.pdf');
     }

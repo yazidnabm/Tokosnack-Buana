@@ -335,8 +335,14 @@
                                                     </div>
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold">Sumber</label>
-                                                        <input type="text" name="sumber" class="form-control"
-                                                            value="{{ $item->sumber }}" required>
+                                                        <input
+                                                            type="text"
+                                                            name="sumber"
+                                                            class="form-control"
+                                                            value="{{ $item->sumber }}"
+                                                            list="sumber-list"
+                                                            autocomplete="off"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -424,11 +430,27 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">Sumber Pemasukan</label>
+
                                 <div class="input-group input-group-merge">
-                                    <span class="input-group-text"><i class="bx bx-shopping-bag"></i></span>
-                                    <input type="text" name="sumber" class="form-control"
-                                        placeholder="Misal: Penjualan Keripik" required>
+                                    <span class="input-group-text">
+                                        <i class="bx bx-shopping-bag"></i>
+                                    </span>
+
+                                    <input
+                                        type="text"
+                                        name="sumber"
+                                        class="form-control"
+                                        placeholder="Misal: Penjualan Keripik"
+                                        list="sumber-list"
+                                        autocomplete="off"
+                                        required>
                                 </div>
+
+                                <datalist id="sumber-list">
+                                    @foreach($sumberList as $sumber)
+                                        <option value="{{ $sumber }}">
+                                    @endforeach
+                                </datalist>
                             </div>
                         </div>
                     </div>

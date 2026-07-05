@@ -7,7 +7,6 @@
         /* Modern Table Styling */
         .table thead th { background-color: #fcfcfc; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 700; color: #8592a3; border-bottom: 2px solid #f0f2f4; }
         .badge-date-out { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; font-weight: 600; padding: 0.5em 0.8em; border-radius: 8px; }
-        .badge-qty-out { background-color: #fff1f2; color: #e91e63; font-weight: 700; padding: 0.4em 0.7em; border-radius: 6px; }
         .amount-out { font-family: 'Public Sans', sans-serif; font-weight: 700; color: #dc3545; }
         .btn-action-out { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
 
@@ -194,24 +193,17 @@
                                             @csrf @method('PUT')
                                             <div class="modal-body p-4">
                                                 <div class="row g-4">
-                                                    <div class="col-md-6">
+                                                    <div class="col-12">
                                                         <label class="form-label fw-bold">Tanggal</label>
-                                                        <input type="date" name="tanggal" class="form-control" value="{{ $item->tanggal }}" required>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-label fw-bold">Quantity</label>
                                                         <input
-                                                            type="number"
-                                                            name="quantity"
+                                                            type="date"
+                                                            name="tanggal"
                                                             class="form-control"
-                                                            value="{{ $item->quantity }}"
-                                                            min="1"
-                                                            step="1"
-                                                            required
-                                                        >
+                                                            value="{{ $item->tanggal }}"
+                                                            required>
                                                     </div>
                                                     <div class="col-12">
-                                                        <label class="form-label fw-bold">Nominal (Rp)</label>
+                                                        <label class="form-label fw-bold">Nominal Total (Rp)</label>
                                                         <input
                                                             type="number"
                                                             name="jumlah"
@@ -225,7 +217,14 @@
                                                     </div>
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold">Tujuan</label>
-                                                        <input type="text" name="tujuan" class="form-control" value="{{ $item->tujuan }}" required>
+                                                        <input
+                                                            type="text"
+                                                            name="tujuan"
+                                                            class="form-control"
+                                                            value="{{ $item->tujuan }}"
+                                                            list="tujuan-list"
+                                                            autocomplete="off"
+                                                            required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -267,18 +266,14 @@
                     @csrf
                     <div class="modal-body p-4">
                         <div class="row g-4">
-                            <div class="col-md-6"><label class="form-label fw-bold">Tanggal</label><input type="date" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required></div>
-                            <div class="col-md-6"><label class="form-label fw-bold">Quantity</label>
-                            <input
-                                type="number"
-                                name="quantity"
-                                class="form-control"
-                                placeholder="1"
-                                min="1"
-                                step="1"
-                                required
-                            >
-                        </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Tanggal</label>
+                                <input type="date"
+                                    name="tanggal"
+                                    class="form-control"
+                                    value="{{ date('Y-m-d') }}"
+                                    required>
+                            </div>
                             <div class="col-12"><label class="form-label fw-bold text-danger">Nominal Total (Rp)</label>
                                 <input
                                     type="number"
@@ -291,7 +286,24 @@
                                     onkeydown="return event.key !== '-'"
                                 >
                                 </div>
-                            <div class="col-12"><label class="form-label fw-bold">Tujuan Pengeluaran</label><input type="text" name="tujuan" class="form-control" placeholder="Misal: Beli Bahan Baku" required></div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Tujuan Pengeluaran</label>
+
+                                <input
+                                    type="text"
+                                    name="tujuan"
+                                    class="form-control"
+                                    placeholder="Misal: Beli Bahan Baku"
+                                    list="tujuan-list"
+                                    autocomplete="off"
+                                    required>
+
+                                <datalist id="tujuan-list">
+                                    @foreach($tujuanList as $tujuan)
+                                        <option value="{{ $tujuan }}">
+                                    @endforeach
+                                </datalist>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer p-4 pt-0"><button type="submit" class="btn btn-danger w-100 py-2 fw-bold">TAMBAH PENGELUARAN</button></div>

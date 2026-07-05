@@ -52,6 +52,14 @@ class KasMasukController extends Controller
             $queryTable->whereBetween('tanggal', [$startDate, $endDate]);
         }
 
+        $sumberList = DB::table('kas_masuk')
+            ->select('sumber')
+            ->whereNotNull('sumber')
+            ->where('sumber', '!=', '')
+            ->distinct()
+            ->orderBy('sumber')
+            ->pluck('sumber');
+
         $data = $queryTable->paginate($perPage);
 
         return view('kas_masuk.index', compact(
@@ -59,6 +67,7 @@ class KasMasukController extends Controller
             'totalPemasukanAll',
             'totalItemAll',
             'produkTerlaris',
+            'sumberList',
             'startDate',
             'endDate'
         ));
