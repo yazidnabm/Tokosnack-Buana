@@ -205,14 +205,13 @@
                                                     <div class="col-12">
                                                         <label class="form-label fw-bold">Nominal Total (Rp)</label>
                                                         <input
-                                                            type="number"
+                                                            type="text"
+                                                            class="form-control format-rupiah"
                                                             name="jumlah"
-                                                            class="form-control"
-                                                            value="{{ $item->jumlah }}"
-                                                            min="1"
-                                                            step="1"
+                                                            value="{{ number_format($item->jumlah,0,'','.') }}"
+                                                            autocomplete="off"
+                                                            inputmode="numeric"
                                                             required
-                                                            onkeydown="return event.key !== '-'"
                                                         >
                                                     </div>
                                                     <div class="col-12">
@@ -276,14 +275,14 @@
                             </div>
                             <div class="col-12"><label class="form-label fw-bold text-danger">Nominal Total (Rp)</label>
                                 <input
-                                    type="number"
+                                    type="text"
+                                    id="jumlahTambah"
                                     name="jumlah"
                                     class="form-control"
                                     placeholder="Masukkan nominal"
-                                    min="1"
-                                    step="1"
+                                    autocomplete="off"
+                                    inputmode="numeric"
                                     required
-                                    onkeydown="return event.key !== '-'"
                                 >
                                 </div>
                             <div class="col-12">
@@ -312,14 +311,6 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('tableSearch').addEventListener('keyup', function() {
-            let val = this.value.toLowerCase();
-            document.querySelectorAll('#mainTable tbody tr').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
-            });
-        });
-    </script>
 
     {{-- ================= TOAST SUCCESS ================= --}}
 @if(session('success'))
@@ -439,6 +430,70 @@
 
 {{-- ================= TOAST SCRIPT ================= --}}
 <script>
+
+    // ================= FORMAT NOMINAL =================
+
+    function formatRibuan(angka) {
+        angka = angka.replace(/\D/g, '');
+        return angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // FORM TAMBAH
+        const tambah = document.getElementById("jumlahTambah");
+
+        if (tambah) {
+
+            tambah.addEventListener("input", function () {
+                this.value = formatRibuan(this.value);
+            });
+
+            if (tambah.form) {
+                tambah.form.addEventListener("submit", function () {
+                    tambah.value = tambah.value.replace(/\./g, '');
+                });
+            }
+
+        }
+
+        // FORM EDIT
+        document.querySelectorAll(".format-rupiah").forEach(function(input){
+
+            input.addEventListener("input", function(){
+                this.value = formatRibuan(this.value);
+            });
+
+            if(input.form){
+
+                input.form.addEventListener("submit", function(){
+
+                    input.value = input.value.replace(/\./g,'');
+
+                });
+
+            }
+
+        });
+
+    });
+
+    // ================= SEARCH =================
+
+    document.getElementById('tableSearch').addEventListener('keyup', function() {
+
+        let value = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#mainTable tbody tr');
+
+        rows.forEach(row => {
+
+            let text = row.innerText.toLowerCase();
+
+            row.style.display = text.includes(value) ? '' : 'none';
+
+        });
+
+    });
 
     function closeToast() {
 
